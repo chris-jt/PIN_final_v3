@@ -127,3 +127,96 @@ Para limpiar todos los recursos generados en AWS, ejecuta los siguientes comando
 5. Verificar y eliminar cualquier volumen EBS huérfano:
 
     aws ec2 describe-volumes --filters Name=status,Values=available --query "Volumes[*
+
+## Acceso a Kibana:
+
+- Abrir un navegador web y acceda a la URL de Kibana proporcionada en el archivo `connection_info.txt`.
+
+### Configuración inicial de Kibana:
+
+- En la página de inicio de Kibana, ir a "Stack Management" en el menú lateral.
+- Clic en "Index Patterns" bajo la sección "Kibana".
+- Clic en "Create index pattern".
+
+### Creación del índice para los logs de Nginx:
+
+- En el campo "Index pattern name", ingresar "logstash-*".
+- Clic en "Next step".
+- En "Time field", seleccionar "@timestamp".
+- Clic en "Create index pattern".
+
+### Visualización de logs:
+
+- En el menú lateral de Kibana, ir a "Discover".
+- Seleccionar el índice "logstash-*" que se acaba de crear.
+- Se ve una lista de logs recopilados por Fluentd de todos los pods, incluido el pod de Nginx.
+
+### Filtrado de logs de Nginx:
+
+- En la barra de búsqueda en la parte superior, ingresar `kubernetes.container_name: nginx` para filtrar solo los logs del pod de Nginx.
+
+### Creación de un dashboard para Nginx:
+
+- Ir a "Dashboard" en el menú lateral y hacer clic en "Create dashboard".
+- Clic en "Create visualization".
+- Seleccionar "Lens" para crear una visualización fácilmente.
+- Arrastrar el campo "log" al área de visualización para ver un resumen de los logs.
+- Guardar la visualización y añádirla al dashboard.
+
+### Configuración de alertas (opcional):
+
+- Ir a "Stack Management" > "Rules and Connectors".
+- Crear una nueva regla basada en los logs de Nginx para recibir alertas sobre eventos específicos.
+
+## Configuración y uso de Grafana con Prometheus para monitoreo del cloud y los pods
+
+1. Acceso a Grafana:
+
+1. Abra un navegador web y acceda a la URL de Grafana proporcionada en el archivo `connection_info.txt`.
+2. Inicie sesión con las credenciales predeterminadas (usuario: admin, contraseña: admin).
+3. Cambie la contraseña cuando se le solicite.
+
+### Configuración de Prometheus como fuente de datos:
+
+1. En el menú lateral de Grafana, vaya a "Configuration" > "Data Sources".
+2. Haga clic en "Add data source" y seleccione "Prometheus".
+3. En el campo "URL", ingrese la URL de Prometheus (http://`<EC2_IP>`:8080).
+4. Haga clic en "Save & Test" para verificar la conexión.
+
+### Importación de dashboards predefinidos:
+
+1. En el menú lateral, vaya a "Create" > "Import".
+2. Ingrese el ID 3119 para importar un dashboard de Kubernetes cluster monitoring.
+3. Seleccione Prometheus como la fuente de datos y haga clic en "Import".
+
+### Creación de un dashboard personalizado para el pod de Nginx:
+
+1. Vaya a "Create" > "Dashboard".
+2. Haga clic en "Add new panel".
+3. En la consulta, use métricas como `container_cpu_usage_seconds_total{container="nginx"}` para CPU o `container_memory_usage_bytes{container="nginx"}` para memoria.
+4. Ajuste el panel según sus necesidades y guárdelo.
+
+### Configuración de alertas para el pod de Nginx:
+
+1. En el panel que creó, vaya a la pestaña "Alert".
+2. Configure una alerta basada en umbrales, por ejemplo, si el uso de CPU supera cierto porcentaje.
+3. Especifique las condiciones de la alerta y guarde la configuración.
+
+### Monitoreo del cloud (nodos de Kubernetes):
+
+1. Importe el dashboard con ID 315 para monitoreo de nodos de Kubernetes.
+2. Este dashboard proporcionará información sobre el uso de recursos a nivel de nodo.
+
+### Configuración de la retención de datos:
+
+1. En la instancia EC2, edite el archivo de configuración de Prometheus (`/etc/prometheus/prometheus.yml`).
+2. Agregue o modifique la línea `storage.tsdb.retention.time: 15d` para establecer la retención de datos a 15 días (ajuste según sus necesidades).
+
+### Exploración de métricas:
+
+1. Use el explorador de métricas de Grafana para descubrir y graficar métricas adicionales específicas de su aplicación y entorno.
+
+### Configuración de notificaciones:
+
+1. En Grafana, vaya a "Alerting" > "Notification channels".
+2. Configure canales de notificación como email, Slack, o PagerDuty para recibir alertas.

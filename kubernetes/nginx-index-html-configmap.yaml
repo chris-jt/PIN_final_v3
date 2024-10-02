@@ -64,11 +64,28 @@ data:
         <div class="info-item">
             <strong>Despliegue:</strong> El despliegue se realiza mediante un pipeline de CI/CD utilizando GitHub Actions.
         </div>
-        
+                
         <div class="info-item">
-            <strong>Monitorización:</strong> Utilizamos el stack EFK (Elasticsearch, Fluentd, Kibana) para la recopilación y visualización de logs.
-        </div>
+            <strong>Monitorización:</strong> Utilizamos Prometheus con Grafana para:
+            <li>
+                Monitoreo de métricas en tiempo real
+                Alertas basadas en métricas
+                Visualización de datos de series temporales
+                Monitoreo de infraestructura y microservicios          
+            </li>
         
+        </div>
+
+        <div class="info-item">
+            <strong>Monitoreo:</strong> Utilizamos el stack EFK (Elasticsearch, Fluentd, Kibana) para la recopilación y visualización de logs.
+            <li>
+                Análisis de logs y eventos
+                Monitoreo de aplicaciones y sistemas
+                Depuración y solución de problemas
+                Análisis de seguridad y cumplimiento normativo
+            </li>
+        </div>
+
         <div class="info-item">
             <strong>Región de AWS:</strong> us-east-1
         </div>

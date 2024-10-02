@@ -266,3 +266,26 @@ jobs:
       with:
         name: connection-info
         path: connection_info.txt
+
+  Download_Kubeconfig:
+    needs: [Deploy_CloudFormation, Conexion_EC2, Deploy_Nginx, Deploy_Monitoring]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download SSH key
+      uses: actions/download-artifact@v3
+      with:
+        name: ssh-key
+
+    - name: Set permissions for SSH key
+      run: chmod 600 jenkins.pem
+
+    - name: Download kubeconfig
+      run: |
+        EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
+        scp -i jenkins.pem -o StrictHostKeyChecking=no ubuntu@$EC2_IP:~/.kube/config ./kubeconfig
+
+    - name: Upload kubeconfig as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: kubeconfig
+        path: ./kubeconfig      

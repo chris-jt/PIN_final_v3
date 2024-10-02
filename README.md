@@ -103,31 +103,6 @@ Para conectarte directamente al pod de Nginx desde tu PC remota:
 
     Nota: Asegúrate de tener las credenciales de AWS configuradas correctamente en tu PC local para poder acceder al cluster EKS.
 
-## Limpieza de recursos en AWS
-
-Para limpiar todos los recursos generados en AWS, ejecuta los siguientes comandos:
-
-1. Eliminar el cluster EKS:
-
-    eksctl delete cluster --name cluster-PIN --region us-east-1
-
-
-2. Eliminar el stack de CloudFormation:
-
-    aws cloudformation delete-stack --stack-name jenkins-ec2-stack --region us-east-1
-
-3. Esperar a que se complete la eliminación del stack:
-
-    aws cloudformation wait stack-delete-complete --stack-name jenkins-ec2-stack --region us-east-1
-
-4. Eliminar el key pair:
-
-    aws ec2 delete-key-pair --key-name jenkins --region us-east-1
-
-5. Verificar y eliminar cualquier volumen EBS huérfano:
-
-    aws ec2 describe-volumes --filters Name=status,Values=available --query "Volumes[*
-
 ## Acceso a Kibana:
 
 - Abrir un navegador web y acceda a la URL de Kibana proporcionada en el archivo `connection_info.txt`.
@@ -220,3 +195,28 @@ Para limpiar todos los recursos generados en AWS, ejecuta los siguientes comando
 
 1. En Grafana, vaya a "Alerting" > "Notification channels".
 2. Configure canales de notificación como email, Slack, o PagerDuty para recibir alertas.
+
+## Limpieza de recursos en AWS
+
+Para limpiar todos los recursos generados en AWS, ejecuta los siguientes comandos:
+
+1. Eliminar el cluster EKS:
+
+    eksctl delete cluster --name cluster-PIN --region us-east-1
+
+
+2. Eliminar el stack de CloudFormation:
+
+    aws cloudformation delete-stack --stack-name jenkins-ec2-stack --region us-east-1
+
+3. Esperar a que se complete la eliminación del stack:
+
+    aws cloudformation wait stack-delete-complete --stack-name jenkins-ec2-stack --region us-east-1
+
+4. Eliminar el key pair:
+
+    aws ec2 delete-key-pair --key-name jenkins --region us-east-1
+
+5. Verificar y eliminar cualquier volumen EBS huérfano:
+
+    aws ec2 describe-volumes --filters Name=status,Values=available --query "Volumes[*

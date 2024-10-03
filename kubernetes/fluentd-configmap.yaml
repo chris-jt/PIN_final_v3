@@ -23,12 +23,13 @@ data:
 
     <match **>
       @type elasticsearch
-      host "#{ENV['FLUENT_ELASTICSEARCH_HOST']}"
-      port "#{ENV['FLUENT_ELASTICSEARCH_PORT']}"
-      scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME']}"
+      host elasticsearch.default.svc.cluster.local
+      port 9200
       logstash_format true
-      logstash_prefix fluentd
-      reconnect_on_error true
-      reload_on_failure true
-      reload_connections false
+      logstash_prefix logstash
+      logstash_dateformat %Y%m%d
+      include_tag_key true
+      type_name access_log
+      tag_key @log_name
+      flush_interval 1s
     </match>

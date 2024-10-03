@@ -67,25 +67,23 @@ data:
                 
         <div class="info-item">
             <strong>Monitorización:</strong> Utilizamos Prometheus con Grafana para:
-            <li>
-                Monitoreo de métricas en tiempo real
-                Alertas basadas en métricas
-                Visualización de datos de series temporales
-                Monitoreo de infraestructura y microservicios          
-            </li>
+            <ul>
+                <li>Monitoreo de métricas en tiempo real</li>
+                <li>Alertas basadas en métricas</li>
+                <li>Visualización de datos de series temporales</li>
+                <li>Monitoreo de infraestructura y microservicios</li>        
+            </ul>
         
         </div>
-
         <div class="info-item">
             <strong>Monitoreo:</strong> Utilizamos el stack EFK (Elasticsearch, Fluentd, Kibana) para la recopilación y visualización de logs.
-            <li>
-                Análisis de logs y eventos
-                Monitoreo de aplicaciones y sistemas
-                Depuración y solución de problemas
-                Análisis de seguridad y cumplimiento normativo
-            </li>
+            <ul>
+                <li>Análisis de logs y eventos</li>
+                <li>Monitoreo de aplicaciones y sistemas</li>
+                <li>Depuración y solución de problemas</li>
+                <li>Análisis de seguridad y cumplimiento normativo</li>
+            </ul>
         </div>
-
         <div class="info-item">
             <strong>Región de AWS:</strong> us-east-1
         </div>

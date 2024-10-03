@@ -107,6 +107,13 @@ Para conectarte directamente al pod de Nginx desde tu PC remota:
 
 - Abrir un navegador web y acceda a la URL de Kibana proporcionada en el archivo `connection_info.txt`.
 
+Verificar que Fluentd esté funcionando correctamente:
+    kubectl get pods -n kube-system | grep fluentd
+    kubectl logs -n kube-system -l k8s-app=fluentd-logging
+
+Verificar que Elasticsearch esté recibiendo datos:
+    kubectl exec -it $(kubectl get pods -l app=elasticsearch -o jsonpath='{.items[0].metadata.name}') -- curl -X GET "localhost:9200/_cat/indices?v"
+    
 ### Configuración inicial de Kibana:
 
 - En la página de inicio de Kibana, ir a "Stack Management" en el menú lateral.
@@ -123,7 +130,7 @@ Para conectarte directamente al pod de Nginx desde tu PC remota:
 ### Visualización de logs:
 
 - En el menú lateral de Kibana, ir a "Discover".
-- Seleccionar el índice "logstash-*" que se acaba de crear.
+- Seleccionar el índice que se acaba de crear.
 - Se ve una lista de logs recopilados por Fluentd de todos los pods, incluido el pod de Nginx.
 
 ### Filtrado de logs de Nginx:

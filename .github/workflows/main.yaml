@@ -213,6 +213,11 @@ jobs:
       with:
         name: ssh-key
 
+    - name: Download connection info
+      uses: actions/download-artifact@v3
+      with:
+        name: connection-info
+
     - name: Set permissions for SSH key
       run: chmod 600 jenkins.pem
 
@@ -255,6 +260,11 @@ jobs:
 
     - name: Set permissions for SSH key
       run: chmod 600 jenkins.pem
+
+    - name: Download connection info
+      uses: actions/download-artifact@v3
+      with:
+        name: connection-info
 
     - name: Deploy Prometheus and Grafana
       run: |
@@ -308,20 +318,14 @@ jobs:
         with:
           name: connection-info
 
-      - name: Combine connection info
-        run: |
-          cat connection_info.txt > combined_connection_info.txt
-          echo "----------------------------------------" >> combined_connection_info.txt
-          echo "Kubeconfig file is available as a separate artifact" >> combined_connection_info.txt
-
-      - name: Display combined connection info
-        run: cat combined_connection_info.txt
+      - name: Display connection info
+        run: cat connection_info.txt
 
       - name: Upload final connection info
         uses: actions/upload-artifact@v3
         with:
-          name: final-connection-info
-          path: combined_connection_info.txt
+          name: connection-info
+          path: connection_info.txt
 
   Download_Kubeconfig:
     needs: [Deploy_CloudFormation, Conexion_EC2, Deploy_Nginx]

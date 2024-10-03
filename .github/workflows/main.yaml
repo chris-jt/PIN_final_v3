@@ -195,6 +195,12 @@ jobs:
           echo "Nginx Service URL: ${{ steps.nginx-url.outputs.nginx_url }}" >> connection_info.txt
           echo "To connect via SSH: ssh -i jenkins.pem ubuntu@${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}" >> connection_info.txt
 
+    - name: Upload initial connection info
+      uses: actions/upload-artifact@v3
+      with:
+        name: connection-info
+        path: connection_info.txt
+
   Deploy_EFK:
     needs: [Deploy_CloudFormation, Conexion_EC2, Deploy_Nginx]
     runs-on: ubuntu-latest
@@ -228,6 +234,12 @@ jobs:
     - name: Update connection information
       run: |
         echo "Kibana URL: ${{ steps.kibana-url.outputs.kibana_url }}" >> connection_info.txt
+
+    - name: Upload updated connection info
+      uses: actions/upload-artifact@v3
+      with:
+        name: connection-info
+        path: connection_info.txt
 
   Deploy_Prometheus_Grafana:
     needs: [Deploy_CloudFormation, Conexion_EC2, Deploy_Nginx, Deploy_EFK]
@@ -281,23 +293,35 @@ jobs:
         echo "Prometheus URL: ${{ steps.monitoring-urls.outputs.prometheus_url }}" >> connection_info.txt
         echo "Grafana URL: ${{ steps.monitoring-urls.outputs.grafana_url }}" >> connection_info.txt
 
+    - name: Upload final connection info
+      uses: actions/upload-artifact@v3
+      with:
+        name: connection-info
+        path: connection_info.txt
+
   Final_Setup:
     needs: [Deploy_Nginx, Deploy_EFK, Deploy_Prometheus_Grafana]
     runs-on: ubuntu-latest
     steps:
-    - name: Download connection info
-      uses: actions/download-artifact@v3
-      with:
-        name: connection-info
+      - name: Download connection info
+        uses: actions/download-artifact@v3
+        with:
+          name: connection-info
 
-    - name: Display connection info
-      run: cat connection_info.txt
+      - name: Combine connection info
+        run: |
+          cat connection_info.txt > combined_connection_info.txt
+          echo "----------------------------------------" >> combined_connection_info.txt
+          echo "Kubeconfig file is available as a separate artifact" >> combined_connection_info.txt
 
-    - name: Upload final connection info
-      uses: actions/upload-artifact@v3
-      with:
-        name: final-connection-info
-        path: connection_info.txt
+      - name: Display combined connection info
+        run: cat combined_connection_info.txt
+
+      - name: Upload final connection info
+        uses: actions/upload-artifact@v3
+        with:
+          name: final-connection-info
+          path: combined_connection_info.txt
 
   Download_Kubeconfig:
     needs: [Deploy_CloudFormation, Conexion_EC2, Deploy_Nginx]

@@ -10,11 +10,17 @@ Este proyecto implementa un pipeline de CI/CD para desplegar una instancia EC2 e
 ├── cloudformation
 │   └── ec2-stack.yaml
 ├── kubernetes
+│   ├── elasticsearch.yaml
+│   ├── fluentd-configmap.yaml
+│   ├── fluentd-daemonset.yaml
+│   ├── fluentd-rbac.yaml
+│   ├── fkibana.yaml
 │   ├── nginx-index-html-configmap.yaml
 │   ├── nginx-deployment.yaml
 │   ├── nginx-service.yaml
-│   ├── efk-stack.yaml
 │   └── prometheus-grafana.yaml
+├── scripts
+│    └── deploy-efk.sh
 ├── ec2_user_data.sh
 └── README.md
 
@@ -113,7 +119,7 @@ Verificar que Fluentd esté funcionando correctamente:
 
 Verificar que Elasticsearch esté recibiendo datos:
     kubectl exec -it $(kubectl get pods -l app=elasticsearch -o jsonpath='{.items[0].metadata.name}') -- curl -X GET "localhost:9200/_cat/indices?v"
-    
+
 ### Configuración inicial de Kibana:
 
 - En la página de inicio de Kibana, ir a "Stack Management" en el menú lateral.

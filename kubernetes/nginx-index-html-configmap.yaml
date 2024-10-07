@@ -2,25 +2,69 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nginx-index-html
+
 data:
-  index.html: |
-    <!DOCTYPE html> 
-    <html lang="es">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenido a Nuestro Proyecto</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f4f4f4;
+    nginx.conf: |
+        user nginx;
+        worker_processes auto;
+        error_log /var/log/nginx/error.log;
+        pid /run/nginx.pid;
+
+        events {
+            worker_connections 1024;
         }
-        header {
+
+        http {
+            log_format json_combined escape=json
+            '{'
+                '"time_local":"$time_local",'
+                '"remote_addr":"$remote_addr",'
+                '"remote_user":"$remote_user",'
+                '"request":"$request",'
+                '"status": "$status",'
+                '"body_bytes_sent":"$body_bytes_sent",'
+                '"request_time":"$request_time",'
+                '"http_referrer":"$http_referer",'
+                '"http_user_agent":"$http_user_agent"'
+            '}';
+
+            access_log /var/log/nginx/access.log json_combined;
+
+            server {
+                listen 80;
+                server_name localhost;
+
+                location / {
+                    root /usr/share/nginx/html;
+                    index index.html;
+                }
+
+            location /nginx_status {
+                stub_status on;
+                access_log off;
+                allow 127.0.0.1;
+                deny all;
+                }
+            }
+        }
+    index.html: |
+        <!DOCTYPE html> 
+        <html lang="es">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bienvenido a Nuestro Proyecto</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            header {
             background-color: #3498db;
             color: #fff;
             text-align: center;
@@ -98,52 +142,51 @@ data:
                 display: none;
             }
         }
-    </style>
-    </head>
-    <body>
+        </style>
+        </head>
+        <body>
+        <header>
+        <h1>Bienvenido a Nuestro Proyecto</h1>
+        </header>
 
-    <header>
-    <h1>Bienvenido a Nuestro Proyecto</h1>
-    </header>
+        <div class="container">
+        <h2>Información del Proyecto</h2>
 
-    <div class="container">
-    <h2>Información del Proyecto</h2>
+        <div class="info-item">
+            <strong>Alojamiento:</strong> Esta página está alojada en un cluster de Kubernetes (EKS) en Amazon Web Services (AWS).
+        </div>
 
-    <div class="info-item">
-        <strong>Alojamiento:</strong> Esta página está alojada en un cluster de Kubernetes (EKS) en Amazon Web Services (AWS).
-    </div>
+        <div class="info-item">
+            <strong>Servidor Web:</strong> Estamos utilizando Nginx como servidor web para servir esta página.
+        </div>
 
-    <div class="info-item">
-        <strong>Servidor Web:</strong> Estamos utilizando Nginx como servidor web para servir esta página.
-    </div>
+        <div class="info-item">
+            <strong>Despliegue:</strong> El despliegue se realiza mediante un pipeline de CI/CD utilizando GitHub Actions.
+        </div>
 
-    <div class="info-item">
-        <strong>Despliegue:</strong> El despliegue se realiza mediante un pipeline de CI/CD utilizando GitHub Actions.
-    </div>
-
-    <div class="info-item">
-        <strong>Monitorización:</strong> Utilizamos Prometheus con Grafana para:
-        <ul>
+        <div class="info-item">
+            <strong>Monitorización:</strong> Utilizamos Prometheus con Grafana para:
+            <ul>
             <li>Monitoreo de métricas en tiempo real</li>
             <li>Alertas basadas en métricas</li>
             <li>Visualización de datos de series temporales</li>
             <li>Monitoreo de infraestructura y microservicios</li>        
-        </ul>
-    </div>
+            </ul>
+        </div>
 
-    <div class="info-item">
-        <strong>Monitoreo:</strong> Utilizamos el stack EFK (Elasticsearch, Fluentd, Kibana) para la recopilación y visualización de logs.
-        <ul>
+        <div class="info-item">
+            <strong>Monitoreo:</strong> Utilizamos el stack EFK (Elasticsearch, Fluentd, Kibana) para la recopilación y visualización de logs.
+            <ul>
             <li>Análisis de logs y eventos</li>
             <li>Monitoreo de aplicaciones y sistemas</li>
             <li>Depuración y solución de problemas</li>
             <li>Análisis de seguridad y cumplimiento normativo</li>
-        </ul>
-    </div>
+            </ul>
+        </div>
 
-    <h2>Esquema del Proyecto IaC</h2>
+        <h2>Esquema del Proyecto IaC</h2>
 
-    <div class="section">
+        <div class="section">
         <div class="step">
             <img src="https://cdn.iconscout.com/icon/free/png-256/github-153-675523.png" alt="GitHub Actions">
             <div class="arrow">➡️</div>
@@ -187,9 +230,11 @@ data:
             <div class="arrow">➡️</div>
             <img src="https://grafana.com/static/img/menu/grafana2.svg" alt="Grafana" width="80">
         </div>
-    </div>
+        </div>
 
-    </div>
+        </div>
 
-    </body>
-    </html>
+        </body>
+        </html>
+
+    

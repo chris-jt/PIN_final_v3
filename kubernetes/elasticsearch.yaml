@@ -35,3 +35,5 @@ spec:
   ports:
   - port: 9200
     targetPort: 9200
+  - port: 9300
+    targetPort: 9300

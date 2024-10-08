@@ -17,6 +17,19 @@ data:
       </parse>
     </source>
 
+    <source>
+      @type tail
+      path /var/log/containers/nginx-*.log
+      pos_file /var/log/fluentd-nginx.log.pos
+      tag kubernetes.nginx
+      read_from_head true
+      <parse>
+        @type json
+        time_key time
+        time_format %Y-%m-%dT%H:%M:%S.%NZ
+      </parse>
+    </source>
+
     <filter kubernetes.**>
       @type kubernetes_metadata
     </filter>

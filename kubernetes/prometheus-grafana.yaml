@@ -52,16 +52,9 @@ data:
         - source_labels: [__meta_kubernetes_pod_name]
           action: replace
           target_label: kubernetes_pod_name
-        - job_name: 'nginx'
-          kubernetes_sd_configs:
-          - role: pod
-          relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_label_app]
-            regex: nginx
-            action: keep
-          - source_labels: [__meta_kubernetes_pod_container_port_number]
-            regex: "80"
-            action: keep
+      - job_name: 'nginx'
+        static_configs:
+        - targets: ['nginx-service:9113']
 ---
 apiVersion: apps/v1
 kind: Deployment

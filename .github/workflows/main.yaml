@@ -155,39 +155,45 @@ jobs:
     - name: Configure kubectl on EC2
       run: |
         EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
-        ssh -i jenkins.pem -o StrictHostKeyChecking=no ubuntu@$EC2_IP '
+        ssh -i jenkins.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10 ubuntu@$EC2_IP '
         aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} && \
         kubectl get nodes'
-        
-    - name: Deploy Nginx
+
+    - name: Copy Kubernetes files to EC2
       run: |
         EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
-        # Copiar archivos al EC2        
         scp -i jenkins.pem -o StrictHostKeyChecking=no kubernetes/nginx-deployment.yaml kubernetes/nginx-service.yaml kubernetes/nginx-index-html-configmap.yaml ubuntu@$EC2_IP:~
-       
-        # Aplicar los archivos
-        ssh -i jenkins.pem -o StrictHostKeyChecking=no ubuntu@$EC2_IP '
-        kubectl apply -f nginx-index-html-configmap.yaml
-        kubectl apply -f nginx-deployment.yaml
-        kubectl apply -f nginx-service.yaml
-
-        # Esperar a que el pod esté listo
-        kubectl wait --for=condition=ready pod -l app=nginx --timeout=300s
-
-        # Verificar el estado del despliegue
-        kubectl get deployments
-        kubectl get pods
-        kubectl get services
-        '
-
+        
+    - name: Apply Kubernetes configurations
+      run: |
+        EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
+        ssh -i jenkins.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10 ubuntu@$EC2_IP '
+        kubectl apply -f nginx-index-html-configmap.yaml && \
+        kubectl apply -f nginx-deployment.yaml && \
+        kubectl apply -f nginx-service.yaml'
+  
+    - name: Wait for Nginx pod to be ready
+      run: |
+        EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
+        ssh -i jenkins.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10 ubuntu@$EC2_IP '
+        kubectl wait --for=condition=ready pod -l app=nginx --timeout=300s'
+  
+    - name: Verify deployment status
+      run: |
+        EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
+        ssh -i jenkins.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10 ubuntu@$EC2_IP '
+        kubectl get deployments && \
+        kubectl get pods && \
+        kubectl get services'
+  
     - name: Get Nginx Service URL
       id: nginx-url
       run: |
-          EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
-          NGINX_URL=$(ssh -i jenkins.pem -o StrictHostKeyChecking=no ubuntu@$EC2_IP '
-            kubectl get service nginx-service -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"
-          ')
-          echo "nginx_url=http://$NGINX_URL" >> $GITHUB_OUTPUT
+        EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
+        NGINX_URL=$(ssh -i jenkins.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10 ubuntu@$EC2_IP '
+        kubectl get service nginx-service -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"
+        ')
+        echo "nginx_url=http://$NGINX_URL" >> $GITHUB_OUTPUT
   
     - name: Save initial connection information
       run: |

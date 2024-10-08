@@ -47,7 +47,13 @@ data:
                 }
             }
         }
-    index.html: |
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-index-html
+data:
+  index.html: |
         <!DOCTYPE html> 
         <html lang="es">
         <head>

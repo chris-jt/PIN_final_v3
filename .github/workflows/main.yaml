@@ -177,7 +177,15 @@ jobs:
         EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
         ssh -i jenkins.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10 ubuntu@$EC2_IP '
         kubectl wait --for=condition=ready pod -l app=nginx --timeout=300s'
-  
+    
+    - name: Check pod status
+      run: |
+        EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
+        ssh -i jenkins.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10 ubuntu@$EC2_IP '
+        kubectl get pods -l app=nginx -o wide
+        kubectl describe pod -l app=nginx
+        kubectl logs -l app=nginx --all-containers=true'
+    
     - name: Verify deployment status
       run: |
         EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
@@ -185,7 +193,14 @@ jobs:
         kubectl get deployments && \
         kubectl get pods && \
         kubectl get services'
-  
+        
+    - name: Check network configuration
+      run: |
+        EC2_IP=${{ needs.Deploy_CloudFormation.outputs.ec2_ip }}
+        ssh -i jenkins.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10 ubuntu@$EC2_IP '
+        kubectl get services
+        kubectl describe service nginx-service'
+
     - name: Get Nginx Service URL
       id: nginx-url
       run: |
